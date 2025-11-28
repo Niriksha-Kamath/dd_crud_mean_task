@@ -1,0 +1,46 @@
+version: '3.8'
+
+services:
+  mongo:
+    image: mongo:6.0
+    restart: unless-stopped
+    environment:
+      MONGO_INITDB_DATABASE: appdb
+    volumes:
+      - mongo-data:/data/db
+    networks:
+      - appnet
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    image: nirikshaakamath/backend:latest
+    restart: unless-stopped
+    depends_on:
+      - mongo
+    environment:
+      MONGO_URL: mongodb://mongo:27017/appdb
+      PORT: 3000
+    networks:
+      - appnet
+    ports:
+      - "3001:3000" # optional for debugging; nginx will proxy from port 80
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    image: nirikshaakamath/frontend:latest
+    restart: unless-stopped
+    depends_on:
+      - backend
+    networks:
+      - appnet
+    ports:
+      - "8081:8081"  # expose app 
+volumes:
+  mongo-data:
+
+networks:
+  appnet:

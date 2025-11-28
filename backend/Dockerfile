@@ -1,0 +1,20 @@
+# Use an official Node.js image as the base
+FROM node:22
+
+# Set the working directory
+WORKDIR /app
+
+# Copy package.json and package-lock.json files to the working directory
+COPY package*.json .
+# Clear npm cache
+RUN npm cache clean --force
+RUN npm install --legacy-peer-deps
+
+# Copy the entire backend code to the working directory
+COPY . .
+
+# Expose the backend's default port (adjust if necessary)
+EXPOSE 3000
+
+# Start the backend server
+CMD ["node", "server.js"]
